@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Bimby Ricette",
+    "slug": "bimby-ricette",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "scheme": "bimbyricette",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#17BEBB"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "requireFullScreen": false,
+      "bundleIdentifier": "com.bimbyricette.app",
+      "infoPlist": {
+        "UISupportedInterfaceOrientations~ipad": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationPortraitUpsideDown",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#17BEBB"
+      },
+      "package": "com.bimbyricette.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single",
+      "bundler": "metro",
+      "name": "Bimby Ricette",
+      "shortName": "Bimby",
+      "themeColor": "#17BEBB",
+      "backgroundColor": "#FFFFFF",
+      "display": "standalone",
+      "lang": "it"
+    },
+    "extra": {
+      "recipesRemoteUrl": "https://raw.githubusercontent.com/your-org/bimby-ricette-data/main/recipes.json"
+    }
+  }
+}
