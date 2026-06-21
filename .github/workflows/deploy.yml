@@ -1,0 +1,59 @@
+# Costruisce la PWA e la pubblica su GitHub Pages a ogni push sul branch principale.
+# Risultato: l'app diventa raggiungibile a https://<tuonome>.github.io/<nome-repo>/
+name: Deploy PWA su GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # permette di lanciarlo a mano dal sito di GitHub
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Evita deploy sovrapposti.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scarica il codice
+        uses: actions/checkout@v4
+
+      - name: Prepara Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Installa le dipendenze
+        run: npm install --no-audit --no-fund
+
+      - name: Costruisci la PWA
+        # Il percorso base è il nome del repository (es. /bimby-ricette).
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          export EXPO_BASE_URL="/$REPO_NAME/"
+          npm run build:web
+
+      - name: Copia index.html anche come 404 (fallback navigazione)
+        run: cp dist/index.html dist/404.html
+
+      - name: Carica il sito
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Pubblica su GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
