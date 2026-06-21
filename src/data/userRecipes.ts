@@ -1,0 +1,44 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Recipe } from '@/types/recipe';
+
+/**
+ * Ricette aggiunte dall'utente con la maschera "+ Aggiungi ricetta".
+ *
+ * Vengono salvate sul dispositivo (AsyncStorage / memoria del browser) e unite a
+ * quelle del ricettario. Restano quindi disponibili anche offline e tra un avvio
+ * e l'altro. Hanno lo stesso identico formato delle altre ricette, così funzionano
+ * con porzioni, filtri e dosi nei passaggi senza nulla di speciale.
+ */
+
+const KEY = 'recipes.user.v1';
+
+export async function loadUserRecipes(): Promise<Recipe[]> {
+  try {
+    const raw = await AsyncStorage.getItem(KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as Recipe[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+async function saveAll(recipes: Recipe[]): Promise<void> {
+  await AsyncStorage.setItem(KEY, JSON.stringify(recipes));
+}
+
+/** Aggiunge una ricetta e restituisce l'elenco aggiornato delle ricette utente. */
+export async function addUserRecipe(recipe: Recipe): Promise<Recipe[]> {
+  const current = await loadUserRecipes();
+  const updated = [...current, recipe];
+  await saveAll(updated);
+  return updated;
+}
+
+/** Elimina una ricetta utente per id e restituisce l'elenco aggiornato. */
+export async function deleteUserRecipe(id: string): Promise<Recipe[]> {
+  const current = await loadUserRecipes();
+  const updated = current.filter((r) => r.id !== id);
+  await saveAll(updated);
+  return updated;
+}
