@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
 import { Recipe } from '@/types/recipe';
 import { colors, radius, spacing, typography } from '@/theme/theme';
 import { scalingFactor, displayQuantity } from '@/utils/scaleIngredients';
+import { ingredientsForStep } from '@/utils/stepIngredients';
 import { CourseChip } from './CourseChip';
 import { PortionSelector } from './PortionSelector';
 import { BimbyBadges } from './BimbyBadges';
@@ -82,6 +83,21 @@ export function RecipeDetailPane({ recipe }: { recipe: Recipe }) {
                 </View>
                 <View style={styles.stepBody}>
                   <Text style={styles.stepText}>{step.text}</Text>
+                  {(() => {
+                    const used = ingredientsForStep(step, recipe.ingredients);
+                    if (used.length === 0) return null;
+                    return (
+                      <View style={styles.stepDoses}>
+                        {used.map((ing) => (
+                          <View key={ing.id} style={styles.doseChip}>
+                            <Text style={styles.doseChipText}>
+                              {displayQuantity(ing, factor)} · {ing.name}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    );
+                  })()}
                   <BimbyBadges bimby={step.bimby} />
                 </View>
               </View>
@@ -207,6 +223,25 @@ const styles = StyleSheet.create({
   stepText: {
     ...typography.body,
     lineHeight: 22,
+  },
+  stepDoses: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+  },
+  doseChip: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+  },
+  doseChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.text,
   },
   emptyContainer: {
     flex: 1,
