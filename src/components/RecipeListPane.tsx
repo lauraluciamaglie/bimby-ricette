@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, RefreshControl, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, FlatList, RefreshControl, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Course, COURSES, Recipe } from '@/types/recipe';
 import { colors, spacing, typography } from '@/theme/theme';
 import { SearchBar } from './SearchBar';
@@ -15,6 +15,7 @@ export function RecipeListPane({
   recipes,
   selectedId,
   onSelect,
+  onAddRecipe,
   // filtri
   query,
   onQueryChange,
@@ -33,6 +34,7 @@ export function RecipeListPane({
   recipes: Recipe[];
   selectedId?: string;
   onSelect: (recipe: Recipe) => void;
+  onAddRecipe: () => void;
   query: string;
   onQueryChange: (text: string) => void;
   selectedCourses: Course[];
@@ -57,6 +59,13 @@ export function RecipeListPane({
       }
       ListHeaderComponent={
         <View style={styles.header}>
+          <Pressable
+            onPress={onAddRecipe}
+            style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
+          >
+            <Text style={styles.addButtonText}>+ Aggiungi ricetta</Text>
+          </Pressable>
+
           <SearchBar value={query} onChange={onQueryChange} />
 
           <ScrollView
@@ -120,6 +129,20 @@ const styles = StyleSheet.create({
   header: {
     gap: spacing.md,
     marginBottom: spacing.md,
+  },
+  addButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+  },
+  addButtonPressed: {
+    opacity: 0.8,
+  },
+  addButtonText: {
+    color: colors.textOnPrimary,
+    fontWeight: '700',
+    fontSize: 16,
   },
   courseRow: {
     paddingVertical: 2,
