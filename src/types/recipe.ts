@@ -65,6 +65,12 @@ export interface RecipeStep {
   text: string;
   /** Impostazioni Bimby associate al passaggio, se presenti. */
   bimby?: BimbySettings;
+  /**
+   * Id degli ingredienti usati in questo passaggio. Se presente, le dosi (scalate
+   * con le porzioni) vengono mostrate sotto il passaggio. Se assente, l'app prova
+   * a riconoscere gli ingredienti dal testo del passaggio.
+   */
+  ingredientRefs?: string[];
 }
 
 /** Una ricetta completa. */
