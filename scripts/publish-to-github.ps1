@@ -76,31 +76,36 @@ $ordered = @($files | Where-Object { (RelPath $_) -ne $workflowRel })
 $ordered += @($files | Where-Object { (RelPath $_) -eq $workflowRel })
 Write-Host "File da caricare: $($ordered.Count)"
 
-function Get-RemoteSha($pathRel) {
-  try { return (Invoke-GH GET "$apiBase/repos/$owner/$Repo/contents/$pathRel`?ref=main").sha }
-  catch { return $null }
+function Get-RemoteFile($pathRel) {
+  try {
+    $r = Invoke-GH GET "$apiBase/repos/$owner/$Repo/contents/$pathRel`?ref=main"
+    return @{ sha = $r.sha; content = ($r.content -replace '\s', '') }  # tolgo gli a-capo che GitHub aggiunge al base64
+  } catch { return $null }
 }
 
 # --- 3b. Rimuovi un eventuale file di prova creato durante i test ---
-$provaSha = Get-RemoteSha "PROVA.md"
-if ($provaSha) {
-  Invoke-GH DELETE "$apiBase/repos/$owner/$Repo/contents/PROVA.md" @{ message = "Rimuovo file di prova"; sha = $provaSha; branch = "main" } | Out-Null
+$prova = Get-RemoteFile "PROVA.md"
+if ($prova) {
+  Invoke-GH DELETE "$apiBase/repos/$owner/$Repo/contents/PROVA.md" @{ message = "Rimuovo file di prova"; sha = $prova.sha; branch = "main" } | Out-Null
   Write-Host "File di prova rimosso."
 }
 
-# --- 4. Carica ogni file con l'API Contents (un file = un piccolo invio) ---
-$i = 0
+# --- 4. Carica solo i file cambiati (un file = un piccolo invio) ---
+$i = 0; $uploaded = 0; $skipped = 0
 foreach ($f in $ordered) {
   $i++
   $rel = RelPath $f
   $b64 = [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($f.FullName))
+  $remote = Get-RemoteFile $rel
+  if ($remote -and $remote.content -eq $b64) {
+    $skipped++; Write-Host "  [$i/$($ordered.Count)] = $rel (invariato)"; continue
+  }
   $body = @{ message = "$Message ($rel)"; content = $b64; branch = "main" }
-  $sha = Get-RemoteSha $rel
-  if ($sha) { $body.sha = $sha }
+  if ($remote) { $body.sha = $remote.sha }
   Invoke-GH PUT "$apiBase/repos/$owner/$Repo/contents/$rel" $body | Out-Null
-  Write-Host "  [$i/$($ordered.Count)] $rel"
+  $uploaded++; Write-Host "  [$i/$($ordered.Count)] + $rel"
 }
-Write-Host "Tutti i file caricati."
+Write-Host "Caricati: $uploaded  -  invariati: $skipped."
 
 # --- 5. Accendi GitHub Pages in modalità "GitHub Actions" ---
 try {
