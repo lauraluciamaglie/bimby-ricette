@@ -1,0 +1,35 @@
+{
+  "_comment": "Esempio del file che la sorgente remota deve servire (URL in app.json -> extra.recipesRemoteUrl). Può essere un array di ricette oppure un oggetto { \"recipes\": [...] }. Modifica/aggiungi ricette qui e pubblica: l'app si aggiorna senza passare dall'App Store.",
+  "recipes": [
+    {
+      "id": "spezzatino-patate",
+      "title": "Spezzatino con Patate",
+      "course": "Secondo",
+      "baseServings": 4,
+      "difficulty": "Media",
+      "totalTimeMinutes": 75,
+      "description": "Spezzatino di manzo tenero con patate, cotto lentamente nel boccale.",
+      "imageUrl": "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800",
+      "tags": ["carne", "manzo", "comfort food"],
+      "ingredients": [
+        { "id": "i1", "name": "Manzo a cubetti", "quantity": 600, "unit": "g" },
+        { "id": "i2", "name": "Patate", "quantity": 500, "unit": "g" },
+        { "id": "i3", "name": "Cipolla", "quantity": 1, "unit": "pz" },
+        { "id": "i4", "name": "Carota", "quantity": 1, "unit": "pz" },
+        { "id": "i5", "name": "Passata di pomodoro", "quantity": 200, "unit": "g" },
+        { "id": "i6", "name": "Vino rosso", "quantity": 80, "unit": "g" },
+        { "id": "i7", "name": "Acqua", "quantity": 300, "unit": "g" },
+        { "id": "i8", "name": "Olio extravergine di oliva", "quantity": 20, "unit": "g" },
+        { "id": "i9", "name": "Sale", "quantity": null },
+        { "id": "i10", "name": "Pepe", "quantity": null }
+      ],
+      "steps": [
+        { "id": "s1", "order": 1, "text": "Tritare cipolla e carota nel boccale.", "bimby": { "timeSeconds": 5, "speed": "5" } },
+        { "id": "s2", "order": 2, "text": "Aggiungere l'olio e soffriggere.", "bimby": { "timeSeconds": 180, "speed": "1", "temperature": 100 } },
+        { "id": "s3", "order": 3, "text": "Unire il manzo e rosolare in antiorario.", "bimby": { "timeSeconds": 300, "speed": "1", "temperature": 100, "direction": "Antiorario" } },
+        { "id": "s4", "order": 4, "text": "Sfumare con il vino rosso.", "bimby": { "timeSeconds": 120, "speed": "1", "temperature": 100, "direction": "Antiorario" } },
+        { "id": "s5", "order": 5, "text": "Aggiungere patate, passata, acqua, sale e pepe. Cuocere in antiorario, velocità soft.", "bimby": { "timeSeconds": 2400, "speed": "Soft", "temperature": 100, "direction": "Antiorario" } }
+      ]
+    }
+  ]
+}
