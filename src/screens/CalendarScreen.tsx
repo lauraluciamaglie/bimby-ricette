@@ -19,7 +19,7 @@ const SLOT_ICON: Record<MealSlot, string> = {
 
 /** Pianificazione settimanale dei pasti: ogni voce rimanda alla sua ricetta. */
 export function CalendarScreen() {
-  const days = nextDays(7);
+  const days = nextDays(14);
   const { getById } = useRecipes();
   const { mealsFor, addMeal, removeMeal } = usePlanner();
 
@@ -30,7 +30,7 @@ export function CalendarScreen() {
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <Text style={styles.brand}>📅 Calendario</Text>
-        <Text style={styles.subtitle}>Pianifica i pasti della settimana</Text>
+        <Text style={styles.subtitle}>Pianifica i pasti delle prossime 2 settimane</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
