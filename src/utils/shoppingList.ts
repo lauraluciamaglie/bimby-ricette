@@ -28,6 +28,12 @@ export interface ShoppingGroup {
   items: AggregatedIngredient[];
 }
 
+/** Olio e sale sono sempre esclusi dalla lista (si danno per scontati in dispensa). */
+function isAlwaysExcluded(name: string): boolean {
+  const n = normalize(name);
+  return n.includes('olio') || /\bsale\b/.test(n);
+}
+
 interface Acc {
   name: string;
   category: ShoppingCategory;
@@ -51,6 +57,7 @@ export function buildShoppingList(
     if (!recipe) continue;
 
     for (const ing of recipe.ingredients) {
+      if (isAlwaysExcluded(ing.name)) continue;
       const key = normalize(ing.name);
       if (!acc.has(key)) {
         acc.set(key, { name: ing.name, category: categorize(ing.name), units: {}, hasQb: false, usedIn: new Set() });
