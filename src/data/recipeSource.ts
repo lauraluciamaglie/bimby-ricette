@@ -2,6 +2,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { Recipe } from '@/types/recipe';
 import { SEED_RECIPES } from './seedRecipes';
+import { sanitizeRecipes } from '@/utils/sanitizeRecipes';
+
+// Ricettario incluso, già "ripulito" (niente soffritto/cipolla/aglio).
+const SEED = sanitizeRecipes(SEED_RECIPES);
 
 /**
  * Sorgente dati delle ricette — livello di astrazione tra UI e backend.
@@ -42,7 +46,8 @@ function parseRecipes(raw: unknown): Recipe[] {
   // Accetta sia `[...]` sia `{ "recipes": [...] }`.
   const list = Array.isArray(raw) ? raw : (raw as { recipes?: unknown })?.recipes;
   if (!Array.isArray(list)) return [];
-  return list.filter(isValidRecipe);
+  // Applica la regola "niente soffritto/cipolla/aglio" anche ai dati remoti.
+  return sanitizeRecipes(list.filter(isValidRecipe));
 }
 
 async function readCache(): Promise<Recipe[] | null> {
@@ -83,7 +88,7 @@ async function fetchRemoteRecipes(): Promise<Recipe[]> {
 export async function getInitialRecipes(): Promise<RecipesResult> {
   const cached = await readCache();
   if (cached) return { recipes: cached, source: 'cache' };
-  return { recipes: SEED_RECIPES, source: 'seed' };
+  return { recipes: SEED, source: 'seed' };
 }
 
 /**
@@ -98,6 +103,6 @@ export async function refreshRecipes(): Promise<RecipesResult> {
   } catch {
     const cached = await readCache();
     if (cached) return { recipes: cached, source: 'cache' };
-    return { recipes: SEED_RECIPES, source: 'seed' };
+    return { recipes: SEED, source: 'seed' };
   }
 }
