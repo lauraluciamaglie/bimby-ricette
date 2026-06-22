@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
-import { Recipe } from '@/types/recipe';
+import { View, Text, Image, ScrollView, StyleSheet, Pressable, Modal, TextInput } from 'react-native';
+import { Recipe, Ingredient } from '@/types/recipe';
 import { colors, radius, spacing, typography } from '@/theme/theme';
-import { scalingFactor, displayQuantity } from '@/utils/scaleIngredients';
+import { scalingFactor, displayQuantity, scaledQuantity, formatQuantity } from '@/utils/scaleIngredients';
 import { ingredientsForStep } from '@/utils/stepIngredients';
 import { CourseChip } from './CourseChip';
 import { PortionSelector } from './PortionSelector';
@@ -21,11 +21,34 @@ export function RecipeDetailPane({ recipe }: { recipe: Recipe }) {
   const [servings, setServings] = useState(
     PORTION_OPTIONS.includes(recipe.baseServings) ? recipe.baseServings : 4
   );
+  // Fattore "manuale": impostato modificando la dose di un ingrediente (es. "ho 600 g di patate").
+  const [manualFactor, setManualFactor] = useState<number | null>(null);
+  const [editing, setEditing] = useState<Ingredient | null>(null);
+  const [editValue, setEditValue] = useState('');
 
-  const factor = useMemo(
+  const portionFactor = useMemo(
     () => scalingFactor(recipe.baseServings, servings),
     [recipe.baseServings, servings]
   );
+  const factor = manualFactor ?? portionFactor;
+
+  function choosePortions(n: number) {
+    setServings(n);
+    setManualFactor(null);
+  }
+  function openEditor(ingredient: Ingredient) {
+    const current = scaledQuantity(ingredient, factor);
+    setEditValue(current != null ? formatQuantity(current, ingredient.unit).replace(',', '.') : '');
+    setEditing(ingredient);
+  }
+  function applyEditor() {
+    if (editing && editing.quantity) {
+      const value = parseFloat(editValue.replace(',', '.'));
+      if (!isNaN(value) && value > 0) setManualFactor(value / editing.quantity);
+    }
+    setEditing(null);
+  }
+  const isEditable = (i: Ingredient) => i.quantity != null && i.scalable !== false;
 
   return (
     <ScrollView
@@ -48,22 +71,42 @@ export function RecipeDetailPane({ recipe }: { recipe: Recipe }) {
         </View>
       </View>
 
-      {/* Selettore porzioni -> pilota il ricalcolo */}
+      {/* Porzioni + ricalcolo */}
       <View style={[styles.section, styles.portionCard]}>
-        <PortionSelector value={servings} options={PORTION_OPTIONS} onChange={setServings} />
-        <Text style={styles.portionHint}>
-          Quantità ricalcolate per {servings} {servings === 1 ? 'persona' : 'persone'}
-        </Text>
+        <PortionSelector value={manualFactor != null ? -1 : servings} options={PORTION_OPTIONS} onChange={choosePortions} />
+        {manualFactor != null ? (
+          <View style={styles.manualRow}>
+            <Text style={styles.portionHint}>
+              Dosi personalizzate (≈ {Math.max(1, Math.round(recipe.baseServings * factor))} porzioni)
+            </Text>
+            <Pressable onPress={() => setManualFactor(null)} hitSlop={6}>
+              <Text style={styles.resetLink}>Azzera</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <Text style={styles.portionHint}>
+            Quantità ricalcolate per {servings} {servings === 1 ? 'persona' : 'persone'}
+          </Text>
+        )}
       </View>
 
-      {/* Ingredienti scalati */}
+      {/* Ingredienti scalati (toccabili per ricalcolare) */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Ingredienti</Text>
+        <Text style={styles.editHint}>💡 Tocca una quantità per ricalcolare tutto in base a quello che hai.</Text>
         <View style={styles.ingredients}>
           {recipe.ingredients.map((ingredient) => (
             <View key={ingredient.id} style={styles.ingredientRow}>
               <Text style={styles.ingredientName}>{ingredient.name}</Text>
-              <Text style={styles.ingredientQty}>{displayQuantity(ingredient, factor)}</Text>
+              {isEditable(ingredient) ? (
+                <Pressable onPress={() => openEditor(ingredient)} hitSlop={6}>
+                  <Text style={[styles.ingredientQty, styles.ingredientQtyEditable]}>
+                    {displayQuantity(ingredient, factor)} ✎
+                  </Text>
+                </Pressable>
+              ) : (
+                <Text style={styles.ingredientQty}>{displayQuantity(ingredient, factor)}</Text>
+              )}
             </View>
           ))}
         </View>
@@ -104,6 +147,38 @@ export function RecipeDetailPane({ recipe }: { recipe: Recipe }) {
             ))}
         </View>
       </View>
+
+      <Modal visible={editing != null} transparent animationType="fade" onRequestClose={() => setEditing(null)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setEditing(null)}>
+          <Pressable style={styles.modalCard} onPress={() => {}}>
+            <Text style={styles.modalTitle}>Quanto ne hai?</Text>
+            <Text style={styles.modalHint}>
+              {editing?.name}: inserisci la quantità che hai e ricalcolo tutti gli altri ingredienti.
+            </Text>
+            <View style={styles.modalInputRow}>
+              <TextInput
+                style={styles.modalInput}
+                value={editValue}
+                onChangeText={setEditValue}
+                keyboardType="decimal-pad"
+                autoFocus
+                placeholder="0"
+                placeholderTextColor={colors.textMuted}
+                onSubmitEditing={applyEditor}
+              />
+              {editing?.unit ? <Text style={styles.modalUnit}>{editing.unit}</Text> : null}
+            </View>
+            <View style={styles.modalButtons}>
+              <Pressable style={styles.modalCancel} onPress={() => setEditing(null)}>
+                <Text style={styles.modalCancelText}>Annulla</Text>
+              </Pressable>
+              <Pressable style={styles.modalOk} onPress={applyEditor}>
+                <Text style={styles.modalOkText}>Ricalcola</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </ScrollView>
   );
 }
@@ -166,6 +241,21 @@ const styles = StyleSheet.create({
   portionHint: {
     ...typography.caption,
   },
+  manualRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  resetLink: {
+    ...typography.caption,
+    color: colors.primaryDark,
+    fontWeight: '700',
+  },
+  editHint: {
+    ...typography.caption,
+    marginBottom: spacing.xs,
+  },
   sectionTitle: {
     ...typography.sectionTitle,
     marginBottom: spacing.xs,
@@ -195,6 +285,77 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.primaryDark,
     marginLeft: spacing.md,
+  },
+  ingredientQtyEditable: {
+    textDecorationLine: 'underline',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: colors.background,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  modalTitle: {
+    ...typography.sectionTitle,
+  },
+  modalHint: {
+    ...typography.caption,
+  },
+  modalInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  modalInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  modalUnit: {
+    ...typography.body,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  modalCancel: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.md,
+  },
+  modalCancelText: {
+    color: colors.textMuted,
+    fontWeight: '600',
+  },
+  modalOk: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.md,
+    backgroundColor: colors.primary,
+  },
+  modalOkText: {
+    color: colors.textOnPrimary,
+    fontWeight: '700',
   },
   steps: {
     gap: spacing.md,
