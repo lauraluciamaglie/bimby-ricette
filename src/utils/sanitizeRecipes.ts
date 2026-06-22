@@ -47,11 +47,31 @@ function titleIsOnionOrGarlic(title: string): boolean {
 
 export function sanitizeRecipe(recipe: Recipe): Recipe {
   const ingredients = recipe.ingredients.filter((i) => !isOnionOrGarlic(i.name));
-  const steps = recipe.steps
-    .slice()
-    .sort((a, b) => a.order - b.order)
-    .filter((s) => !isSoffrittoStep(s.text))
-    .map((s, idx) => ({ ...s, order: idx + 1 }));
+
+  const sorted = recipe.steps.slice().sort((a, b) => a.order - b.order);
+  const kept = sorted.filter((s) => !isSoffrittoStep(s.text));
+  const removedSoffritto = kept.length < sorted.length;
+
+  // Se ho tolto un soffritto, la ricetta usa l'olio ed è un piatto che cuoce,
+  // riaggiungo come primo passaggio "versare e scaldare l'olio" per non lasciare il buco.
+  const hasOil = ingredients.some((i) => normalize(i.name).includes('olio'));
+  const firstMentionsOil = kept.length > 0 && normalize(kept[0].text).includes('olio');
+  const hasCookingStep = kept.some((s) => s.bimby && s.bimby.temperature != null);
+
+  let steps = kept;
+  if (removedSoffritto && hasOil && hasCookingStep && !firstMentionsOil) {
+    steps = [
+      {
+        id: 's-olio',
+        order: 0,
+        text: 'Versare l’olio nel boccale e scaldarlo qualche secondo.',
+        bimby: { timeSeconds: 120, speed: '1', temperature: 100 as number },
+      },
+      ...kept,
+    ];
+  }
+
+  steps = steps.map((s, idx) => ({ ...s, order: idx + 1 }));
   return { ...recipe, ingredients, steps };
 }
 
