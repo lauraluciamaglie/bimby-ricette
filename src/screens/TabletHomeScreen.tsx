@@ -34,7 +34,7 @@ export function TabletHomeScreen() {
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <ApronLogo size={36} />
-        <Text style={styles.brand}>Bimby Ricette</Text>
+        <Text style={styles.brand}>Cooking Lalla</Text>
       </View>
 
       <View style={styles.columns}>
