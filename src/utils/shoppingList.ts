@@ -28,10 +28,10 @@ export interface ShoppingGroup {
   items: AggregatedIngredient[];
 }
 
-/** Olio e sale sono sempre esclusi dalla lista (si danno per scontati in dispensa). */
+/** Olio, sale e acqua sono sempre esclusi dalla lista (si danno per scontati). */
 function isAlwaysExcluded(name: string): boolean {
   const n = normalize(name);
-  return n.includes('olio') || /\bsale\b/.test(n);
+  return n.includes('olio') || /\bsale\b/.test(n) || /\bacqua\b/.test(n);
 }
 
 interface Acc {
