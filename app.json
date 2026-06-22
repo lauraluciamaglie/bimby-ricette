@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Bimby Ricette",
+    "name": "Cooking Lalla",
     "slug": "bimby-ricette",
     "version": "1.0.0",
     "orientation": "default",
@@ -37,8 +37,8 @@
       "favicon": "./assets/favicon.png",
       "output": "single",
       "bundler": "metro",
-      "name": "Bimby Ricette",
-      "shortName": "Bimby",
+      "name": "Cooking Lalla",
+      "shortName": "Cooking Lalla",
       "themeColor": "#17BEBB",
       "backgroundColor": "#FFFFFF",
       "display": "standalone",
