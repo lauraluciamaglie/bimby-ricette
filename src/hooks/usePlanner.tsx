@@ -7,13 +7,17 @@ import { normalize } from '@/utils/filters';
 /**
  * Stato di Calendario e Spesa, salvato sul dispositivo:
  *  - `mealPlan`: cosa mangiare nei vari giorni/pasti (rimanda alle ricette).
- *  - `pantry`: ingredienti che l'utente ha già ("ce l'ho"), per la lista automatica.
+ *  - `weekStatus`: per ogni ingrediente della settimana, il flag scelto
+ *    dall'utente: 'have' (ce l'ho) o 'need' (da comprare). Se non c'è, l'utente
+ *    non l'ha ancora toccato (e quindi non finisce nella lista della spesa).
  *  - `manualItems`: articoli aggiunti a mano alla lista della spesa.
  */
 
 const KEY_PLAN = 'mealplan.v1';
-const KEY_PANTRY = 'pantry.v1';
+const KEY_WEEK = 'weekstatus.v1';
 const KEY_MANUAL = 'shopping.manual.v1';
+
+export type IngredientStatus = 'have' | 'need';
 
 interface PlannerContextValue {
   mealPlan: MealEntry[];
@@ -21,9 +25,10 @@ interface PlannerContextValue {
   addMeal: (date: string, slot: MealSlot, recipeId: string) => void;
   removeMeal: (id: string) => void;
 
-  pantry: string[]; // nomi ingredienti (normalizzati) già posseduti
-  hasInPantry: (name: string) => boolean;
-  togglePantry: (name: string) => void;
+  /** Flag scelti dall'utente per gli ingredienti della settimana (chiave = nome normalizzato). */
+  weekStatus: Record<string, IngredientStatus>;
+  statusOf: (name: string) => IngredientStatus | undefined;
+  setStatus: (name: string, status: IngredientStatus | null) => void;
 
   manualItems: ManualShoppingItem[];
   addManualItem: (name: string, category: ShoppingCategory) => void;
@@ -44,18 +49,18 @@ async function loadJson<T>(key: string, fallback: T): Promise<T> {
 
 export function PlannerProvider({ children }: { children: React.ReactNode }) {
   const [mealPlan, setMealPlan] = useState<MealEntry[]>([]);
-  const [pantry, setPantry] = useState<string[]>([]);
+  const [weekStatus, setWeekStatus] = useState<Record<string, IngredientStatus>>({});
   const [manualItems, setManualItems] = useState<ManualShoppingItem[]>([]);
 
   useEffect(() => {
     (async () => {
       setMealPlan(await loadJson<MealEntry[]>(KEY_PLAN, []));
-      setPantry(await loadJson<string[]>(KEY_PANTRY, []));
+      setWeekStatus(await loadJson<Record<string, IngredientStatus>>(KEY_WEEK, {}));
       setManualItems(await loadJson<ManualShoppingItem[]>(KEY_MANUAL, []));
     })();
   }, []);
 
-  // Helper che aggiorna lo stato e salva, in un colpo solo.
+  // Aggiorna lo stato e salva, in un colpo solo.
   function persist<T>(key: string, value: T, setter: (v: T) => void) {
     setter(value);
     AsyncStorage.setItem(key, JSON.stringify(value)).catch(() => {});
@@ -79,15 +84,17 @@ export function PlannerProvider({ children }: { children: React.ReactNode }) {
     [mealPlan]
   );
 
-  const hasInPantry = useCallback((name: string) => pantry.includes(normalize(name)), [pantry]);
+  const statusOf = useCallback((name: string) => weekStatus[normalize(name)], [weekStatus]);
 
-  const togglePantry = useCallback(
-    (name: string) => {
+  const setStatus = useCallback(
+    (name: string, status: IngredientStatus | null) => {
       const key = normalize(name);
-      const next = pantry.includes(key) ? pantry.filter((p) => p !== key) : [...pantry, key];
-      persist(KEY_PANTRY, next, setPantry);
+      const next = { ...weekStatus };
+      if (status === null) delete next[key];
+      else next[key] = status;
+      persist(KEY_WEEK, next, setWeekStatus);
     },
-    [pantry]
+    [weekStatus]
   );
 
   const addManualItem = useCallback(
@@ -117,10 +124,10 @@ export function PlannerProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       mealPlan, mealsFor, addMeal, removeMeal,
-      pantry, hasInPantry, togglePantry,
+      weekStatus, statusOf, setStatus,
       manualItems, addManualItem, toggleManualItem, removeManualItem,
     }),
-    [mealPlan, mealsFor, addMeal, removeMeal, pantry, hasInPantry, togglePantry, manualItems, addManualItem, toggleManualItem, removeManualItem]
+    [mealPlan, mealsFor, addMeal, removeMeal, weekStatus, statusOf, setStatus, manualItems, addManualItem, toggleManualItem, removeManualItem]
   );
 
   return <PlannerContext.Provider value={value}>{children}</PlannerContext.Provider>;
