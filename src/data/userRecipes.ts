@@ -27,10 +27,17 @@ async function saveAll(recipes: Recipe[]): Promise<void> {
   await AsyncStorage.setItem(KEY, JSON.stringify(recipes));
 }
 
-/** Aggiunge una ricetta e restituisce l'elenco aggiornato delle ricette utente. */
+/**
+ * Salva una ricetta utente (upsert): se esiste già una ricetta con lo stesso id
+ * la sostituisce, altrimenti la aggiunge. Serve sia per "aggiungi" sia per
+ * "modifica/sostituisci". Restituisce l'elenco aggiornato.
+ */
 export async function addUserRecipe(recipe: Recipe): Promise<Recipe[]> {
   const current = await loadUserRecipes();
-  const updated = [...current, recipe];
+  const exists = current.some((r) => r.id === recipe.id);
+  const updated = exists
+    ? current.map((r) => (r.id === recipe.id ? recipe : r))
+    : [...current, recipe];
   await saveAll(updated);
   return updated;
 }
