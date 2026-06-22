@@ -152,12 +152,15 @@ export const EXTRA_4: Recipe[] = [
       { id: 'i3', name: 'Aglio', quantity: 2, unit: 'spicchio' },
       { id: 'i4', name: 'Pomodorini', quantity: 200, unit: 'g' },
       { id: 'i5', name: 'Prezzemolo', quantity: null },
+      { id: 'i6', name: 'Acqua', quantity: 600, unit: 'g' },
       olio(30),
+      sale,
     ],
     steps: [
-      { id: 's1', order: 1, text: 'Far aprire le cozze in padella e filtrare il liquido.' },
-      { id: 's2', order: 2, text: 'Nel boccale rosolare aglio e pomodorini, unire cozze e liquido.', bimby: { timeSeconds: 300, speed: '1', temperature: 100, direction: 'Antiorario' } },
-      { id: 's3', order: 3, text: 'Condire gli spaghetti e profumare con prezzemolo.' },
+      { id: 's1', order: 1, text: 'Far aprire le cozze in padella e filtrarne il liquido.' },
+      { id: 's2', order: 2, text: 'Nel boccale rosolare aglio e pomodorini.', bimby: { timeSeconds: 180, speed: '1', temperature: 100, direction: 'Antiorario' } },
+      { id: 's3', order: 3, text: 'Aggiungere gli spaghetti spezzati, l’acqua, il liquido delle cozze e poco sale: la pasta cuoce nel boccale. Cuocere in antiorario, velocità soft, per il tempo della pasta (circa 10 minuti).', bimby: { timeSeconds: 600, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
+      { id: 's4', order: 4, text: 'Unire le cozze, mescolare e profumare con il prezzemolo.' },
     ],
   },
   {
@@ -166,13 +169,16 @@ export const EXTRA_4: Recipe[] = [
     tags: ['pasta', 'forno', 'ragù'],
     ingredients: [
       { id: 'i1', name: 'Pasta corta', quantity: 350, unit: 'g' },
+      { id: 'i5', name: 'Acqua', quantity: 750, unit: 'g' },
       { id: 'i2', name: 'Ragù alla bolognese', quantity: 500, unit: 'g' },
       { id: 'i3', name: 'Mozzarella', quantity: 200, unit: 'g' },
       { id: 'i4', name: 'Parmigiano grattugiato', quantity: 80, unit: 'g' },
+      sale,
     ],
     steps: [
-      { id: 's1', order: 1, text: 'Lessare la pasta al dente e condirla con il ragù.' },
-      { id: 's2', order: 2, text: 'Versare in teglia con mozzarella e parmigiano e gratinare in forno a 190°C per 25 minuti.' },
+      { id: 's1', order: 1, text: 'Inserire nel boccale la pasta, l’acqua e poco sale e cuocere in antiorario, velocità soft, fino a pasta al dente (circa 8 minuti).', bimby: { timeSeconds: 480, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
+      { id: 's2', order: 2, text: 'Scolare, condire con il ragù e versare in teglia con mozzarella e parmigiano.' },
+      { id: 's3', order: 3, text: 'Gratinare in forno a 190°C per 25 minuti.' },
     ],
   },
 
