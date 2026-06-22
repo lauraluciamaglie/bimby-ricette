@@ -29,7 +29,7 @@ export function RecipesStack() {
         contentStyle: { backgroundColor: colors.background },
       }}
     >
-      <Stack.Screen name="RecipeList" component={RecipeListScreen} options={{ title: 'Bimby Ricette' }} />
+      <Stack.Screen name="RecipeList" component={RecipeListScreen} options={{ title: 'Cooking Lalla' }} />
       <Stack.Screen
         name="RecipeDetail"
         component={RecipeDetailScreen}
