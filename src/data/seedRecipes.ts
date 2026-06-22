@@ -9,6 +9,7 @@ import { CONTORNI } from './recipes/contorni';
 import { CONTORNI_2 } from './recipes/contorni2';
 import { DOLCI } from './recipes/dolci';
 import { DOLCI_2 } from './recipes/dolci2';
+import { EXTRA_1 } from './recipes/extra1';
 
 /**
  * Ricettario incluso nell'app (100 ricette popolari).
@@ -34,4 +35,5 @@ export const SEED_RECIPES: Recipe[] = [
   ...CONTORNI_2,
   ...DOLCI,
   ...DOLCI_2,
+  ...EXTRA_1,
 ];
