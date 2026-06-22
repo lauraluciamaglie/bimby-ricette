@@ -143,6 +143,7 @@ export const PRIMI: Recipe[] = [
       { id: 'i8', name: 'Sale', quantity: null },
       { id: 'i9', name: 'Pepe', quantity: null },
       { id: 'i10', name: 'Pasta', quantity: 320, unit: 'g' },
+      { id: 'i11', name: 'Acqua', quantity: 700, unit: 'g' },
     ],
     steps: [
       { id: 's1', order: 1, text: 'Inserire cipolla, carota e sedano e tritare.', bimby: { timeSeconds: 5, speed: '5' } },
@@ -150,7 +151,7 @@ export const PRIMI: Recipe[] = [
       { id: 's3', order: 3, text: 'Unire la carne e rosolare in antiorario.', bimby: { timeSeconds: 300, speed: '1', temperature: 100, direction: 'Antiorario' } },
       { id: 's4', order: 4, text: 'Sfumare con il vino rosso.', bimby: { timeSeconds: 120, speed: '1', temperature: 100, direction: 'Antiorario' } },
       { id: 's5', order: 5, text: 'Aggiungere passata, sale e pepe. Cuocere a lungo in antiorario.', bimby: { timeSeconds: 2400, speed: 'Soft', temperature: 90, direction: 'Antiorario' } },
-      { id: 's6', order: 6, text: 'Per la pasta (nel boccale): unire al ragù la pasta e acqua a coprire (circa 700 g) e cuocere in antiorario, velocità soft, per il tempo della pasta; mescolare e servire. In alternativa, usare il ragù per condire pasta o lasagne.', bimby: { timeSeconds: 660, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
+      { id: 's6', order: 6, text: 'Per la pasta (nel boccale): unire al ragù la pasta e l’acqua e cuocere in antiorario, velocità soft, per il tempo della pasta; mescolare e servire. In alternativa, usare il ragù per condire pasta o lasagne.', bimby: { timeSeconds: 660, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
     ],
   },
   {
@@ -170,13 +171,14 @@ export const PRIMI: Recipe[] = [
       { id: 'i4', name: 'Basilico', quantity: null },
       { id: 'i5', name: 'Sale', quantity: null },
       { id: 'i6', name: 'Pasta', quantity: 320, unit: 'g' },
+      { id: 'i7', name: 'Acqua', quantity: 700, unit: 'g' },
     ],
     steps: [
       { id: 's1', order: 1, text: 'Inserire la cipolla e tritare.', bimby: { timeSeconds: 5, speed: '5' } },
       { id: 's2', order: 2, text: 'Aggiungere l’olio e soffriggere.', bimby: { timeSeconds: 180, speed: '1', temperature: 100 } },
       { id: 's3', order: 3, text: 'Unire la passata e il sale. Cuocere in antiorario senza misurino.', bimby: { timeSeconds: 900, speed: '1', temperature: 100, direction: 'Antiorario' } },
       { id: 's4', order: 4, text: 'Profumare con basilico fresco a fine cottura.' },
-      { id: 's5', order: 5, text: 'Per la pasta (nel boccale): unire al sugo la pasta e acqua a coprire (circa 700 g) e cuocere in antiorario, velocità soft, per il tempo della pasta; mescolare e servire.', bimby: { timeSeconds: 660, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
+      { id: 's5', order: 5, text: 'Per la pasta (nel boccale): unire al sugo la pasta e l’acqua e cuocere in antiorario, velocità soft, per il tempo della pasta; mescolare e servire.', bimby: { timeSeconds: 660, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
     ],
   },
   {
