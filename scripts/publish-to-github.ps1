@@ -102,7 +102,19 @@ foreach ($f in $ordered) {
   }
   $body = @{ message = "$Message ($rel)"; content = $b64; branch = "main" }
   if ($remote) { $body.sha = $remote.sha }
-  Invoke-GH PUT "$apiBase/repos/$owner/$Repo/contents/$rel" $body | Out-Null
+  $url = "$apiBase/repos/$owner/$Repo/contents/$rel"
+  try {
+    Invoke-GH PUT $url $body | Out-Null
+  } catch {
+    $code = $_.Exception.Response.StatusCode.value__
+    if ($code -eq 422 -or $code -eq 409) {
+      # Il file esiste ma non avevamo lo sha (errore di rete sul GET): recuperalo e riprova.
+      Start-Sleep -Milliseconds 600
+      $again = Get-RemoteFile $rel
+      if ($again) { $body.sha = $again.sha }
+      Invoke-GH PUT $url $body | Out-Null
+    } else { throw }
+  }
   $uploaded++; Write-Host "  [$i/$($ordered.Count)] + $rel"
 }
 Write-Host "Caricati: $uploaded  -  invariati: $skipped."
