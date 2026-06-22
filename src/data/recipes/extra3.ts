@@ -34,11 +34,11 @@ function pasta(id: string, title: string, cond: Ing[], metodo: string, tags: str
   return {
     id, title, course: 'Primo', baseServings: 4, difficulty: 'Facile', totalTimeMinutes: 25,
     description: `${title}: un primo saporito.`, tags: ['pasta', ...tags],
-    ingredients: [{ id: 'i1', name: 'Pasta', quantity: 320, unit: 'g' }, olio(20), ...cond, sale],
+    ingredients: [{ id: 'i1', name: 'Pasta', quantity: 320, unit: 'g' }, olio(20), ...cond, { id: 'iacqua', name: 'Acqua', quantity: 700, unit: 'g' }, sale],
     steps: [
-      { id: 's1', order: 1, text: 'Lessare la pasta in abbondante acqua salata.' },
-      { id: 's2', order: 2, text: metodo, bimby: { timeSeconds: 600, speed: '1', temperature: 100, direction: 'Antiorario' } },
-      { id: 's3', order: 3, text: 'Scolare la pasta e condirla con il sugo.' },
+      { id: 's1', order: 1, text: metodo, bimby: { timeSeconds: 300, speed: '1', temperature: 100, direction: 'Antiorario' } },
+      { id: 's2', order: 2, text: 'Aggiungere la pasta (spezzata se lunga), l’acqua e il sale: la pasta cuoce direttamente nel boccale, senza pentola a parte. Cuocere in antiorario, velocità soft, per il tempo indicato sulla confezione (circa 12 minuti).', bimby: { timeSeconds: 720, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
+      { id: 's3', order: 3, text: 'Lasciare riposare 2 minuti, mescolare e servire.' },
     ],
   };
 }
@@ -105,7 +105,24 @@ export const EXTRA_3: Recipe[] = [
   pasta('pasta-limone', 'Pasta al Limone', [{ id: 'i3', name: 'Limone', quantity: 1, unit: 'pz' }, { id: 'i4', name: 'Panna', quantity: 100, unit: 'g' }, { id: 'i5', name: 'Parmigiano grattugiato', quantity: 40, unit: 'g' }], 'Nel boccale scaldare panna, scorza e succo di limone e parmigiano.', ['vegetariano']),
   pasta('pasta-funghi-panna', 'Pasta Funghi e Panna', [{ id: 'i3', name: 'Funghi', quantity: 250, unit: 'g' }, { id: 'i4', name: 'Panna', quantity: 100, unit: 'g' }], 'Nel boccale stufare i funghi e unire la panna.', ['vegetariano']),
   pasta('pasta-asparagi', 'Pasta agli Asparagi', [{ id: 'i3', name: 'Asparagi', quantity: 300, unit: 'g' }, { id: 'i4', name: 'Parmigiano grattugiato', quantity: 40, unit: 'g' }], 'Nel boccale stufare gli asparagi a pezzetti.', ['vegetariano']),
-  pasta('pasta-fredda', 'Pasta Fredda Estiva', [{ id: 'i3', name: 'Pomodorini', quantity: 250, unit: 'g' }, { id: 'i4', name: 'Mozzarella', quantity: 150, unit: 'g' }, { id: 'i5', name: 'Basilico', quantity: null }], 'Condire la pasta lessata e raffreddata con pomodorini, mozzarella e basilico (a crudo, senza cottura).', ['estate', 'vegetariano']),
+  {
+    id: 'pasta-fredda', title: 'Pasta Fredda Estiva', course: 'Primo', baseServings: 4, difficulty: 'Facile', totalTimeMinutes: 25,
+    description: 'Pasta fredda estiva: la pasta si cuoce nel boccale, poi si raffredda e si condisce a crudo.', tags: ['pasta', 'estate', 'vegetariano'],
+    ingredients: [
+      { id: 'i1', name: 'Pasta', quantity: 320, unit: 'g' },
+      { id: 'i2', name: 'Acqua', quantity: 800, unit: 'g' },
+      { id: 'i3', name: 'Pomodorini', quantity: 250, unit: 'g' },
+      { id: 'i4', name: 'Mozzarella', quantity: 150, unit: 'g' },
+      { id: 'i5', name: 'Basilico', quantity: null },
+      { id: 'i6', name: 'Olio extravergine di oliva', quantity: 20, unit: 'g' },
+      { id: 'sale', name: 'Sale', quantity: null },
+    ],
+    steps: [
+      { id: 's1', order: 1, text: 'Inserire la pasta, l’acqua e il sale nel boccale e cuocere in antiorario, velocità soft, per il tempo della pasta (circa 12 minuti).', bimby: { timeSeconds: 720, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
+      { id: 's2', order: 2, text: 'Scolare la pasta, raffreddarla sotto acqua fredda e scolarla bene.' },
+      { id: 's3', order: 3, text: 'Condire a crudo con pomodorini, mozzarella a cubetti, basilico e olio.' },
+    ],
+  },
 
   // Vellutate
   vellutata('crema-spinaci-zuppa', 'Crema di Spinaci', [{ id: 'i3', name: 'Spinaci', quantity: 500, unit: 'g' }, { id: 'i4', name: 'Patata', quantity: 1, unit: 'pz' }], ['spinaci']),
