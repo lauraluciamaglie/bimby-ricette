@@ -19,12 +19,14 @@ export const ANTIPASTI: Recipe[] = [
       { id: 'i4', name: 'Pecorino grattugiato', quantity: 20, unit: 'g' },
       { id: 'i5', name: 'Aglio', quantity: 1, unit: 'spicchio' },
       { id: 'i6', name: 'Olio extravergine di oliva', quantity: 120, unit: 'g' },
+      { id: 'i8', name: 'Pasta', quantity: 320, unit: 'g' },
       { id: 'i7', name: 'Sale', quantity: null },
     ],
     steps: [
       { id: 's1', order: 1, text: 'Inserire parmigiano, pecorino, pinoli e aglio. Tritare.', bimby: { timeSeconds: 15, speed: '8' } },
       { id: 's2', order: 2, text: 'Aggiungere basilico, olio e sale.' },
-      { id: 's3', order: 3, text: 'Frullare fino a ottenere una crema, raccogliendo sui bordi se necessario.', bimby: { timeSeconds: 30, speed: '7' } },
+      { id: 's3', order: 3, text: 'Frullare fino a crema, raccogliendo sui bordi se necessario, poi trasferire il pesto in una ciotola.', bimby: { timeSeconds: 30, speed: '7' } },
+      { id: 's4', order: 4, text: 'Per la pasta: cuocere la pasta nel boccale con acqua a coprire (circa 700 g) e poco sale, in antiorario a velocità soft per il tempo indicato sulla confezione; scolare e condire a crudo con il pesto.', bimby: { timeSeconds: 660, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
     ],
   },
   {
