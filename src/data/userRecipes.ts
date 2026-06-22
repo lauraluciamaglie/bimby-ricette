@@ -49,3 +49,32 @@ export async function deleteUserRecipe(id: string): Promise<Recipe[]> {
   await saveAll(updated);
   return updated;
 }
+
+/* --- Ricette del ricettario "nascoste" dall'utente (rimosse, ma ripristinabili) --- */
+
+const HIDDEN_KEY = 'recipes.hidden.v1';
+
+export async function loadHiddenIds(): Promise<string[]> {
+  try {
+    const raw = await AsyncStorage.getItem(HIDDEN_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? (parsed as string[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function hideRecipe(id: string): Promise<string[]> {
+  const current = await loadHiddenIds();
+  if (current.includes(id)) return current;
+  const updated = [...current, id];
+  await AsyncStorage.setItem(HIDDEN_KEY, JSON.stringify(updated));
+  return updated;
+}
+
+export async function unhideRecipe(id: string): Promise<string[]> {
+  const current = await loadHiddenIds();
+  const updated = current.filter((x) => x !== id);
+  await AsyncStorage.setItem(HIDDEN_KEY, JSON.stringify(updated));
+  return updated;
+}
