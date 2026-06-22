@@ -287,7 +287,7 @@ export const DOLCI_2: Recipe[] = [
       { id: 's2', order: 2, text: 'Aggiungere farina e lievito per dolci.', bimby: { timeSeconds: 20, speed: '5' } },
       { id: 's3', order: 3, text: 'Se serve, riunire il composto con la spatola e mescolare ancora.', bimby: { timeSeconds: 10, speed: '4' } },
       { id: 's4', order: 4, text: 'Scaldare la piastra per waffle e spennellarla leggermente con olio.' },
-      { id: 's5', order: 5, text: 'Versare 1 cucchiaio abbondante di impasto in ogni alloggiamento, chiudere e cuocere circa 1 minuto (regola in base alla potenza della tua macchina).' },
+      { id: 's5', order: 5, text: 'Versare 1 cucchiaio abbondante di impasto in ogni alloggiamento, chiudere e cuocere circa 3 minuti (regola in base alla potenza della tua macchina).' },
     ],
   },
 ];
