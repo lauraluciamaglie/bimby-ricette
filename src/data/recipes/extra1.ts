@@ -66,12 +66,13 @@ function pasta(
       { id: 'i1', name: 'Pasta', quantity: 320, unit: 'g' },
       olio(20),
       ...condimento,
+      { id: 'iacqua', name: 'Acqua', quantity: 700, unit: 'g' },
       sale,
     ],
     steps: [
-      { id: 's1', order: 1, text: 'Lessare la pasta in abbondante acqua salata.' },
-      { id: 's2', order: 2, text: metodo, bimby: { timeSeconds: 600, speed: '1', temperature: 100, direction: 'Antiorario' } },
-      { id: 's3', order: 3, text: 'Scolare la pasta e condirla con il sugo.' },
+      { id: 's1', order: 1, text: metodo, bimby: { timeSeconds: 300, speed: '1', temperature: 100, direction: 'Antiorario' } },
+      { id: 's2', order: 2, text: 'Aggiungere la pasta (spezzata se lunga), l’acqua e il sale: la pasta cuoce direttamente nel boccale, senza pentola a parte. Cuocere in antiorario, velocità soft, per il tempo indicato sulla confezione (circa 12 minuti).', bimby: { timeSeconds: 720, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
+      { id: 's3', order: 3, text: 'Lasciare riposare 2 minuti, mescolare e servire.' },
     ],
   };
 }
@@ -160,7 +161,23 @@ export const EXTRA_1: Recipe[] = [
   pasta('pasta-quattro-formaggi', 'Pasta ai Quattro Formaggi', [{ id: 'i3', name: 'Formaggi misti', quantity: 200, unit: 'g' }, { id: 'i4', name: 'Latte', quantity: 100, unit: 'g' }], 'Nel boccale sciogliere i formaggi con il latte.', ['vegetariano']),
   pasta('pasta-vodka', 'Pasta alla Vodka', [{ id: 'i3', name: 'Passata di pomodoro', quantity: 300, unit: 'g' }, { id: 'i4', name: 'Panna', quantity: 100, unit: 'g' }, { id: 'i5', name: 'Vodka', quantity: 30, unit: 'g' }], 'Nel boccale cuocere passata, panna e vodka fino a sugo cremoso.'),
   pasta('pasta-genovese', 'Pasta alla Genovese', [{ id: 'i3', name: 'Cipolle', quantity: 600, unit: 'g' }, { id: 'i4', name: 'Manzo', quantity: 300, unit: 'g' }], 'Nel boccale stufare a lungo cipolle e carne fino a crema dorata.', ['napoletano']),
-  pasta('trofie-pesto', 'Trofie al Pesto', [{ id: 'i3', name: 'Pesto alla genovese', quantity: 150, unit: 'g' }, { id: 'i4', name: 'Patata', quantity: 1, unit: 'pz' }, { id: 'i5', name: 'Fagiolini', quantity: 100, unit: 'g' }], 'Lessare patate e fagiolini con la pasta, poi condire con il pesto a crudo.', ['ligure', 'vegetariano']),
+  {
+    id: 'trofie-pesto', title: 'Trofie al Pesto', course: 'Primo', baseServings: 4, difficulty: 'Facile', totalTimeMinutes: 25,
+    description: 'Trofie al Pesto con patate e fagiolini, cotte direttamente nel boccale.', tags: ['pasta', 'ligure', 'vegetariano'],
+    ingredients: [
+      { id: 'i1', name: 'Trofie', quantity: 320, unit: 'g' },
+      { id: 'i2', name: 'Patata', quantity: 1, unit: 'pz' },
+      { id: 'i3', name: 'Fagiolini', quantity: 100, unit: 'g' },
+      { id: 'i4', name: 'Acqua', quantity: 800, unit: 'g' },
+      { id: 'i5', name: 'Pesto alla genovese', quantity: 150, unit: 'g' },
+      { id: 'sale', name: 'Sale', quantity: null },
+    ],
+    steps: [
+      { id: 's1', order: 1, text: 'Inserire nel boccale le trofie, la patata e i fagiolini a pezzetti, l’acqua e il sale.' },
+      { id: 's2', order: 2, text: 'Cuocere in antiorario, velocità soft, per il tempo della pasta (circa 12 minuti): cuoce tutto insieme nel boccale.', bimby: { timeSeconds: 720, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
+      { id: 's3', order: 3, text: 'Scolare il liquido in eccesso e condire a crudo con il pesto.' },
+    ],
+  },
   pasta('orecchiette-cime-rapa', 'Orecchiette Cime di Rapa', [{ id: 'i3', name: 'Cime di rapa', quantity: 400, unit: 'g' }, { id: 'i4', name: 'Aglio', quantity: 1, unit: 'spicchio' }, { id: 'i5', name: 'Acciughe', quantity: 2, unit: 'pz' }], 'Nel boccale stufare le cime di rapa con aglio e acciughe.', ['pugliese']),
   pasta('pasta-zucca-speck', 'Pasta Zucca e Speck', [{ id: 'i3', name: 'Zucca', quantity: 300, unit: 'g' }, { id: 'i4', name: 'Speck', quantity: 100, unit: 'g' }], 'Nel boccale stufare la zucca e unire lo speck croccante.'),
 
