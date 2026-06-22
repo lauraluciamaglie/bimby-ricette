@@ -16,6 +16,7 @@ import { EXTRA_4 } from './recipes/extra4';
 import { EXTRA_5 } from './recipes/extra5';
 import { EXTRA_6 } from './recipes/extra6';
 import { EXTRA_7 } from './recipes/extra7';
+import { EXTRA_8 } from './recipes/extra8';
 
 /**
  * Ricettario incluso nell'app (100 ricette popolari).
@@ -48,4 +49,5 @@ export const SEED_RECIPES: Recipe[] = [
   ...EXTRA_5,
   ...EXTRA_6,
   ...EXTRA_7,
+  ...EXTRA_8,
 ];
