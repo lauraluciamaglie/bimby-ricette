@@ -4,6 +4,8 @@ import { Recipe, Ingredient } from '@/types/recipe';
 import { colors, radius, spacing, typography } from '@/theme/theme';
 import { scalingFactor, displayQuantity, scaledQuantity, formatQuantity } from '@/utils/scaleIngredients';
 import { ingredientsForStep } from '@/utils/stepIngredients';
+import { useRecipes } from '@/hooks/useRecipes';
+import { useRecipeEditor } from '@/hooks/useRecipeEditor';
 import { CourseChip } from './CourseChip';
 import { PortionSelector } from './PortionSelector';
 import { BimbyBadges } from './BimbyBadges';
@@ -50,6 +52,11 @@ export function RecipeDetailPane({ recipe }: { recipe: Recipe }) {
   }
   const isEditable = (i: Ingredient) => i.quantity != null && i.scalable !== false;
 
+  const { openEdit } = useRecipeEditor();
+  const { isBuiltIn, isCustom, removeRecipe } = useRecipes();
+  const custom = isCustom(recipe.id);
+  const builtIn = isBuiltIn(recipe.id);
+
   return (
     <ScrollView
       style={styles.container}
@@ -68,6 +75,19 @@ export function RecipeDetailPane({ recipe }: { recipe: Recipe }) {
             <Text style={styles.meta}>⏱ {recipe.totalTimeMinutes} min</Text>
           )}
           {recipe.difficulty && <Text style={styles.meta}>📊 {recipe.difficulty}</Text>}
+        </View>
+
+        <View style={styles.actionsRow}>
+          <Pressable style={styles.actionBtn} onPress={() => openEdit(recipe)}>
+            <Text style={styles.actionText}>✏️ Modifica</Text>
+          </Pressable>
+          {custom && (
+            <Pressable style={[styles.actionBtn, styles.actionDanger]} onPress={() => removeRecipe(recipe.id)}>
+              <Text style={[styles.actionText, styles.actionDangerText]}>
+                {builtIn ? '↩︎ Ripristina originale' : '🗑 Elimina'}
+              </Text>
+            </Pressable>
+          )}
         </View>
       </View>
 
@@ -227,6 +247,32 @@ const styles = StyleSheet.create({
   meta: {
     ...typography.caption,
     fontWeight: '600',
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  actionBtn: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: colors.surface,
+  },
+  actionText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.primaryDark,
+  },
+  actionDanger: {
+    borderColor: '#E0A0A0',
+    backgroundColor: '#FDECEA',
+  },
+  actionDangerText: {
+    color: '#B3261E',
   },
   portionCard: {
     marginHorizontal: spacing.lg,
