@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, Pressable, Modal, TextInput } from 'react-native';
-import { Recipe, Ingredient } from '@/types/recipe';
+import { Recipe, Ingredient, COURSES } from '@/types/recipe';
 import { colors, radius, spacing, typography } from '@/theme/theme';
 import { scalingFactor, displayQuantity, scaledQuantity, formatQuantity } from '@/utils/scaleIngredients';
 import { ingredientsForStep } from '@/utils/stepIngredients';
@@ -53,9 +53,9 @@ export function RecipeDetailPane({ recipe }: { recipe: Recipe }) {
   const isEditable = (i: Ingredient) => i.quantity != null && i.scalable !== false;
 
   const { openEdit } = useRecipeEditor();
-  const { isBuiltIn, isCustom, removeRecipe } = useRecipes();
-  const custom = isCustom(recipe.id);
-  const builtIn = isBuiltIn(recipe.id);
+  const { isBuiltIn, isCustom, deleteRecipe, restoreRecipe, moveRecipe } = useRecipes();
+  const isOverride = isCustom(recipe.id) && isBuiltIn(recipe.id);
+  const [showMove, setShowMove] = useState(false);
 
   return (
     <ScrollView
@@ -81,14 +81,36 @@ export function RecipeDetailPane({ recipe }: { recipe: Recipe }) {
           <Pressable style={styles.actionBtn} onPress={() => openEdit(recipe)}>
             <Text style={styles.actionText}>✏️ Modifica</Text>
           </Pressable>
-          {custom && (
-            <Pressable style={[styles.actionBtn, styles.actionDanger]} onPress={() => removeRecipe(recipe.id)}>
-              <Text style={[styles.actionText, styles.actionDangerText]}>
-                {builtIn ? '↩︎ Ripristina originale' : '🗑 Elimina'}
-              </Text>
+          <Pressable style={styles.actionBtn} onPress={() => setShowMove((s) => !s)}>
+            <Text style={styles.actionText}>📂 Sposta</Text>
+          </Pressable>
+          <Pressable style={[styles.actionBtn, styles.actionDanger]} onPress={() => deleteRecipe(recipe.id)}>
+            <Text style={[styles.actionText, styles.actionDangerText]}>🗑 Rimuovi</Text>
+          </Pressable>
+          {isOverride && (
+            <Pressable style={styles.actionBtn} onPress={() => restoreRecipe(recipe.id)}>
+              <Text style={styles.actionText}>↩︎ Ripristina originale</Text>
             </Pressable>
           )}
         </View>
+
+        {showMove && (
+          <View style={styles.moveRow}>
+            <Text style={styles.moveLabel}>Sposta in:</Text>
+            {COURSES.filter((c) => c !== recipe.course).map((c) => (
+              <Pressable
+                key={c}
+                style={styles.moveChip}
+                onPress={() => {
+                  moveRecipe(recipe.id, c);
+                  setShowMove(false);
+                }}
+              >
+                <Text style={styles.moveChipText}>{c}</Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
       </View>
 
       {/* Porzioni + ricalcolo */}
@@ -273,6 +295,30 @@ const styles = StyleSheet.create({
   },
   actionDangerText: {
     color: '#B3261E',
+  },
+  moveRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  moveLabel: {
+    ...typography.caption,
+    fontWeight: '700',
+  },
+  moveChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs + 2,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: colors.background,
+  },
+  moveChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.primaryDark,
   },
   portionCard: {
     marginHorizontal: spacing.lg,
