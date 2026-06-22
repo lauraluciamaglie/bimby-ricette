@@ -23,11 +23,13 @@ export function TabletHomeScreen() {
     if (!selected && recipes.length > 0) setSelected(recipes[0]);
   }, [recipes, selected]);
 
-  // Se la ricetta selezionata sparisce dopo un refresh remoto, deseleziona.
+  // Tiene la ricetta selezionata allineata all'elenco: se sparisce deseleziona,
+  // se è stata modificata mostra la versione aggiornata.
   useEffect(() => {
-    if (selected && !recipes.some((r) => r.id === selected.id)) {
-      setSelected(recipes[0]);
-    }
+    if (!selected) return;
+    const fresh = recipes.find((r) => r.id === selected.id);
+    if (!fresh) setSelected(recipes[0]);
+    else if (fresh !== selected) setSelected(fresh);
   }, [recipes, selected]);
 
   return (
