@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RecipesProvider, useRecipes } from '@/hooks/useRecipes';
 import { PlannerProvider } from '@/hooks/usePlanner';
+import { RecipeEditorProvider } from '@/hooks/useRecipeEditor';
 import { RootNavigator } from '@/navigation/RootNavigator';
 import { ApronLogo } from '@/components/ApronLogo';
 import { colors } from '@/theme/theme';
@@ -28,7 +29,9 @@ export default function App() {
       <StatusBar style="dark" />
       <RecipesProvider>
         <PlannerProvider>
-          <Gate />
+          <RecipeEditorProvider>
+            <Gate />
+          </RecipeEditorProvider>
         </PlannerProvider>
       </RecipesProvider>
     </SafeAreaProvider>
