@@ -20,10 +20,14 @@ interface RecipesContextValue {
   /** Forza il ricaricamento dal remoto (pull-to-refresh). */
   refresh: () => Promise<void>;
   getById: (id: string) => Recipe | undefined;
-  /** Aggiunge una ricetta creata dall'utente (la salva sul dispositivo). */
+  /** Aggiunge o sostituisce una ricetta (la salva sul dispositivo). */
   addRecipe: (recipe: Recipe) => Promise<void>;
-  /** Elimina una ricetta creata dall'utente. */
+  /** Elimina una modifica utente: cancella la ricetta nuova o ripristina l'originale. */
   removeRecipe: (id: string) => Promise<void>;
+  /** True se la ricetta fa parte del ricettario incluso/remoto. */
+  isBuiltIn: (id: string) => boolean;
+  /** True se l'utente l'ha creata o modificata (salvata sul dispositivo). */
+  isCustom: (id: string) => boolean;
 }
 
 const RecipesContext = createContext<RecipesContextValue | undefined>(undefined);
@@ -63,13 +67,22 @@ export function RecipesProvider({ children }: { children: React.ReactNode }) {
     setRefreshing(false);
   }, []);
 
-  // Le ricette dell'utente compaiono in cima, poi quelle del ricettario.
-  const recipes = useMemo(() => [...userRecipes, ...sourceRecipes], [userRecipes, sourceRecipes]);
+  // Le ricette utente sovrascrivono quelle del ricettario con lo stesso id;
+  // quelle nuove (id non presente nel ricettario) compaiono in cima.
+  const recipes = useMemo(() => {
+    const overrides = new Map(userRecipes.map((r) => [r.id, r]));
+    const merged = sourceRecipes.map((r) => overrides.get(r.id) ?? r);
+    const onlyNew = userRecipes.filter((u) => !sourceRecipes.some((s) => s.id === u.id));
+    return [...onlyNew, ...merged];
+  }, [userRecipes, sourceRecipes]);
 
   const getById = useCallback(
     (id: string) => recipes.find((r) => r.id === id),
     [recipes]
   );
+
+  const isBuiltIn = useCallback((id: string) => sourceRecipes.some((r) => r.id === id), [sourceRecipes]);
+  const isCustom = useCallback((id: string) => userRecipes.some((r) => r.id === id), [userRecipes]);
 
   const addRecipe = useCallback(async (recipe: Recipe) => {
     setUserRecipes(await addUserRecipe(recipe));
@@ -80,8 +93,8 @@ export function RecipesProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ recipes, loading, refreshing, source, refresh, getById, addRecipe, removeRecipe }),
-    [recipes, loading, refreshing, source, refresh, getById, addRecipe, removeRecipe]
+    () => ({ recipes, loading, refreshing, source, refresh, getById, addRecipe, removeRecipe, isBuiltIn, isCustom }),
+    [recipes, loading, refreshing, source, refresh, getById, addRecipe, removeRecipe, isBuiltIn, isCustom]
   );
 
   return <RecipesContext.Provider value={value}>{children}</RecipesContext.Provider>;
