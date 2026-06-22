@@ -138,8 +138,37 @@ export const EXTRA_3: Recipe[] = [
   confettura('confettura-frutti-bosco', 'Confettura di Frutti di Bosco', 'Frutti di bosco', 600),
 
   // Salse e creme salate
-  salsa('pesto-rucola', 'Pesto di Rucola', [{ id: 'i1', name: 'Rucola', quantity: 80, unit: 'g' }, { id: 'i2', name: 'Mandorle', quantity: 30, unit: 'g' }, { id: 'i3', name: 'Parmigiano grattugiato', quantity: 40, unit: 'g' }, { id: 'i4', name: 'Olio extravergine di oliva', quantity: 100, unit: 'g' }], ['vegetariano']),
-  salsa('pesto-pomodori-secchi', 'Pesto di Pomodori Secchi', [{ id: 'i1', name: 'Pomodori secchi', quantity: 150, unit: 'g' }, { id: 'i2', name: 'Mandorle', quantity: 30, unit: 'g' }, { id: 'i3', name: 'Olio extravergine di oliva', quantity: 80, unit: 'g' }], ['vegano']),
+  {
+    id: 'pesto-rucola', title: 'Pesto di Rucola', course: 'Antipasto', baseServings: 4, difficulty: 'Facile', totalTimeMinutes: 15,
+    description: 'Pesto di rucola e mandorle, ottimo per condire la pasta.', tags: ['salsa', 'pesto', 'vegetariano'],
+    ingredients: [
+      { id: 'i1', name: 'Rucola', quantity: 80, unit: 'g' },
+      { id: 'i2', name: 'Mandorle', quantity: 30, unit: 'g' },
+      { id: 'i3', name: 'Parmigiano grattugiato', quantity: 40, unit: 'g' },
+      { id: 'i4', name: 'Olio extravergine di oliva', quantity: 100, unit: 'g' },
+      { id: 'i5', name: 'Pasta', quantity: 320, unit: 'g' },
+      { id: 'sale', name: 'Sale', quantity: null },
+    ],
+    steps: [
+      { id: 's1', order: 1, text: 'Inserire rucola, mandorle, parmigiano, olio e sale nel boccale e frullare fino a crema; trasferire il pesto in una ciotola.', bimby: { timeSeconds: 40, speed: '7' } },
+      { id: 's2', order: 2, text: 'Per la pasta: cuocere la pasta nel boccale con acqua a coprire (circa 700 g) e poco sale, in antiorario a velocità soft per il tempo indicato; scolare e condire a crudo con il pesto.', bimby: { timeSeconds: 660, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
+    ],
+  },
+  {
+    id: 'pesto-pomodori-secchi', title: 'Pesto di Pomodori Secchi', course: 'Antipasto', baseServings: 4, difficulty: 'Facile', totalTimeMinutes: 15,
+    description: 'Pesto rosso di pomodori secchi e mandorle, perfetto per la pasta.', tags: ['salsa', 'pesto', 'vegano'],
+    ingredients: [
+      { id: 'i1', name: 'Pomodori secchi', quantity: 150, unit: 'g' },
+      { id: 'i2', name: 'Mandorle', quantity: 30, unit: 'g' },
+      { id: 'i3', name: 'Olio extravergine di oliva', quantity: 80, unit: 'g' },
+      { id: 'i5', name: 'Pasta', quantity: 320, unit: 'g' },
+      { id: 'sale', name: 'Sale', quantity: null },
+    ],
+    steps: [
+      { id: 's1', order: 1, text: 'Inserire pomodori secchi, mandorle, olio e sale nel boccale e frullare fino a crema; trasferire il pesto in una ciotola.', bimby: { timeSeconds: 40, speed: '7' } },
+      { id: 's2', order: 2, text: 'Per la pasta: cuocere la pasta nel boccale con acqua a coprire (circa 700 g) e poco sale, in antiorario a velocità soft per il tempo indicato; scolare e condire a crudo con il pesto.', bimby: { timeSeconds: 660, speed: 'Soft', temperature: 100, direction: 'Antiorario' } },
+    ],
+  },
   salsa('crema-carciofi', 'Crema di Carciofi', [{ id: 'i1', name: 'Carciofi', quantity: 300, unit: 'g' }, { id: 'i2', name: 'Formaggio spalmabile', quantity: 80, unit: 'g' }], ['vegetariano']),
   salsa('crema-zucca-salata', 'Crema di Zucca Speziata', [{ id: 'i1', name: 'Zucca cotta', quantity: 300, unit: 'g' }, { id: 'i2', name: 'Formaggio spalmabile', quantity: 80, unit: 'g' }, { id: 'i3', name: 'Curry in polvere', quantity: null }], ['vegetariano']),
 
