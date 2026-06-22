@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -15,6 +15,7 @@ import { Course, COURSES, Recipe, BimbySettings } from '@/types/recipe';
 import { colors, radius, spacing, typography } from '@/theme/theme';
 import { CourseFilterChip } from './CourseChip';
 import { PortionSelector } from './PortionSelector';
+import { RecipePickerModal } from './RecipePickerModal';
 
 /** Righe del modulo (tutto testo, convertito in numeri al salvataggio). */
 type IngredientRow = { name: string; quantity: string; unit: string };
@@ -23,7 +24,6 @@ type StepRow = { text: string; time: string; speed: string; temp: string; antior
 const emptyIngredient = (): IngredientRow => ({ name: '', quantity: '', unit: '' });
 const emptyStep = (): StepRow => ({ text: '', time: '', speed: '', temp: '', antiorario: false });
 
-/** Converte "100" o "varoma" nel valore corretto per la temperatura del Bimby. */
 function parseTemperature(text: string): number | 'Varoma' | undefined {
   const t = text.trim().toLowerCase();
   if (!t) return undefined;
@@ -43,21 +43,44 @@ function buildBimby(step: StepRow): BimbySettings | undefined {
   return Object.keys(bimby).length > 0 ? bimby : undefined;
 }
 
+/** Converte una ricetta esistente nelle righe del modulo (per modifica/sostituzione). */
+function recipeToRows(r: Recipe) {
+  return {
+    ingredients: r.ingredients.map((i) => ({
+      name: i.name,
+      quantity: i.quantity == null ? '' : String(i.quantity).replace('.', ','),
+      unit: i.unit ?? '',
+    })),
+    steps: r.steps
+      .slice()
+      .sort((a, b) => a.order - b.order)
+      .map((s) => ({
+        text: s.text,
+        time: s.bimby?.timeSeconds != null ? String(s.bimby.timeSeconds) : '',
+        speed: s.bimby?.speed ?? '',
+        temp: s.bimby?.temperature != null ? String(s.bimby.temperature) : '',
+        antiorario: s.bimby?.direction === 'Antiorario',
+      })),
+  };
+}
+
 /**
- * Maschera "+ Aggiungi ricetta".
- * Raccoglie tipo di piatto, porzioni, ingredienti, passaggi e info, e costruisce
- * una ricetta nello stesso formato delle altre (così funziona con porzioni, filtri
- * e dosi nei passaggi).
+ * Maschera per CREARE o MODIFICARE una ricetta.
+ * - Senza `initial`: crea una ricetta nuova (con opzione "Modifica una esistente").
+ * - Con `initial`: parte già compilata con quella ricetta e, al salvataggio, la sostituisce.
  */
 export function AddRecipeModal({
   visible,
   onClose,
   onSave,
+  initial = null,
 }: {
   visible: boolean;
   onClose: () => void;
   onSave: (recipe: Recipe) => void;
+  initial?: Recipe | null;
 }) {
+  const [editId, setEditId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [course, setCourse] = useState<Course>('Primo');
   const [servings, setServings] = useState(4);
@@ -66,8 +89,23 @@ export function AddRecipeModal({
   const [ingredients, setIngredients] = useState<IngredientRow[]>([emptyIngredient()]);
   const [steps, setSteps] = useState<StepRow[]>([emptyStep()]);
   const [error, setError] = useState('');
+  const [pickerVisible, setPickerVisible] = useState(false);
+
+  function loadRecipe(r: Recipe) {
+    const rows = recipeToRows(r);
+    setEditId(r.id);
+    setTitle(r.title);
+    setCourse(r.course);
+    setServings([1, 2, 3, 4].includes(r.baseServings) ? r.baseServings : 4);
+    setDescription(r.description ?? '');
+    setTime(r.totalTimeMinutes != null ? String(r.totalTimeMinutes) : '');
+    setIngredients(rows.ingredients.length ? rows.ingredients : [emptyIngredient()]);
+    setSteps(rows.steps.length ? rows.steps : [emptyStep()]);
+    setError('');
+  }
 
   function reset() {
+    setEditId(null);
     setTitle('');
     setCourse('Primo');
     setServings(4);
@@ -77,6 +115,14 @@ export function AddRecipeModal({
     setSteps([emptyStep()]);
     setError('');
   }
+
+  // Quando la maschera si apre, precompila (se è una modifica) o azzera (se è nuova).
+  useEffect(() => {
+    if (!visible) return;
+    if (initial) loadRecipe(initial);
+    else reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, initial]);
 
   function updateIngredient(index: number, patch: Partial<IngredientRow>) {
     setIngredients((rows) => rows.map((r, i) => (i === index ? { ...r, ...patch } : r)));
@@ -95,7 +141,7 @@ export function AddRecipeModal({
     if (filledSteps.length === 0) return setError('Aggiungi almeno un passaggio.');
 
     const recipe: Recipe = {
-      id: `user-${Date.now()}`,
+      id: editId ?? `user-${Date.now()}`,
       title: cleanTitle,
       course,
       baseServings: servings,
@@ -125,28 +171,42 @@ export function AddRecipeModal({
     onClose();
   }
 
+  const isEditing = editId != null;
+
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose} transparent={false}>
+    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-        {/* Barra in alto */}
         <View style={styles.header}>
           <Pressable onPress={onClose} hitSlop={8}>
             <Text style={styles.headerAction}>Annulla</Text>
           </Pressable>
-          <Text style={styles.headerTitle}>Nuova ricetta</Text>
+          <Text style={styles.headerTitle}>{isEditing ? 'Modifica ricetta' : 'Nuova ricetta'}</Text>
           <Pressable onPress={handleSave} hitSlop={8}>
             <Text style={[styles.headerAction, styles.headerSave]}>Salva</Text>
           </Pressable>
         </View>
 
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             {error ? <Text style={styles.error}>{error}</Text> : null}
 
-            {/* Nome */}
+            {/* Stato: nuova vs modifica esistente */}
+            {isEditing ? (
+              <View style={styles.modeBox}>
+                <Text style={styles.modeText}>Stai modificando «{title}». Al salvataggio sostituirà la ricetta esistente.</Text>
+                <Pressable onPress={reset} hitSlop={6}>
+                  <Text style={styles.modeLink}>Crea nuova invece</Text>
+                </Pressable>
+              </View>
+            ) : (
+              <View style={styles.modeBox}>
+                <Text style={styles.modeText}>Stai creando una ricetta nuova.</Text>
+                <Pressable onPress={() => setPickerVisible(true)} hitSlop={6}>
+                  <Text style={styles.modeLink}>Modifica una esistente</Text>
+                </Pressable>
+              </View>
+            )}
+
             <Text style={styles.label}>Nome del piatto</Text>
             <TextInput
               style={styles.input}
@@ -156,7 +216,6 @@ export function AddRecipeModal({
               placeholderTextColor={colors.textMuted}
             />
 
-            {/* Tipo di piatto */}
             <Text style={styles.label}>Tipo di piatto</Text>
             <View style={styles.courseRow}>
               {COURSES.map((c) => (
@@ -164,7 +223,6 @@ export function AddRecipeModal({
               ))}
             </View>
 
-            {/* Porzioni di base */}
             <Text style={styles.label}>Per quante persone sono queste dosi?</Text>
             <PortionSelector value={servings} onChange={setServings} />
             <Text style={styles.hint}>
@@ -172,7 +230,6 @@ export function AddRecipeModal({
               ricalcolerà da sola per le altre porzioni.
             </Text>
 
-            {/* Info opzionali */}
             <Text style={styles.label}>Descrizione (facoltativa)</Text>
             <TextInput
               style={[styles.input, styles.inputMultiline]}
@@ -193,7 +250,6 @@ export function AddRecipeModal({
               keyboardType="number-pad"
             />
 
-            {/* Ingredienti */}
             <Text style={styles.sectionTitle}>Ingredienti</Text>
             <Text style={styles.hint}>Lascia la quantità vuota per "q.b." (sale, pepe…).</Text>
             {ingredients.map((row, i) => (
@@ -231,11 +287,8 @@ export function AddRecipeModal({
               <Text style={styles.addRowText}>+ Aggiungi ingrediente</Text>
             </Pressable>
 
-            {/* Passaggi */}
             <Text style={styles.sectionTitle}>Preparazione</Text>
-            <Text style={styles.hint}>
-              I campi Bimby sono facoltativi: compilali se quel passaggio li prevede.
-            </Text>
+            <Text style={styles.hint}>I campi Bimby sono facoltativi: compilali se quel passaggio li prevede.</Text>
             {steps.map((row, i) => (
               <View key={i} style={styles.stepCard}>
                 <View style={styles.stepHead}>
@@ -278,10 +331,7 @@ export function AddRecipeModal({
                     placeholderTextColor={colors.textMuted}
                   />
                 </View>
-                <Pressable
-                  onPress={() => updateStep(i, { antiorario: !row.antiorario })}
-                  style={styles.checkRow}
-                >
+                <Pressable onPress={() => updateStep(i, { antiorario: !row.antiorario })} style={styles.checkRow}>
                   <View style={[styles.checkbox, row.antiorario && styles.checkboxOn]}>
                     {row.antiorario && <Text style={styles.checkboxTick}>✓</Text>}
                   </View>
@@ -294,10 +344,21 @@ export function AddRecipeModal({
             </Pressable>
 
             <Pressable onPress={handleSave} style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Salva ricetta</Text>
+              <Text style={styles.saveButtonText}>{isEditing ? 'Salva modifiche' : 'Salva ricetta'}</Text>
             </Pressable>
           </ScrollView>
         </KeyboardAvoidingView>
+
+        {/* Scelta della ricetta da modificare */}
+        <RecipePickerModal
+          visible={pickerVisible}
+          title="Quale ricetta vuoi modificare?"
+          onPick={(r) => {
+            setPickerVisible(false);
+            loadRecipe(r);
+          }}
+          onClose={() => setPickerVisible(false)}
+        />
       </SafeAreaView>
     </Modal>
   );
@@ -325,6 +386,17 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     fontWeight: '600',
   },
+  modeBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.md,
+  },
+  modeText: { ...typography.caption, flex: 1 },
+  modeLink: { ...typography.caption, color: colors.primaryDark, fontWeight: '700' },
   label: { ...typography.body, fontWeight: '700', marginTop: spacing.md },
   sectionTitle: { ...typography.sectionTitle, marginTop: spacing.xl },
   hint: { ...typography.caption },
